@@ -20,6 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: <you>/repo-doctor@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 ```
 
 The action prints a grouped report to the job log and writes a Markdown summary visible on the workflow run page.

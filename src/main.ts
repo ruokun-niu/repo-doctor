@@ -12,7 +12,7 @@ import { renderMarkdown } from './reporters/markdown';
 import { renderJson } from './reporters/json';
 import { summarize } from './reporters/common';
 
-const VERSION = '0.1.0';
+const VERSION = '0.1.2';
 
 type FailOn = 'error' | 'warn' | 'never';
 
