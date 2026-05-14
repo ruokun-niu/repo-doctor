@@ -103,13 +103,6 @@ function expectedBoolCheck(opts: {
   };
 }
 
-export const deleteBranchOnMergeCheck = expectedBoolCheck({
-  id: 'repo.delete-branch-on-merge',
-  description: 'Automatically delete head branches after merge.',
-  field: 'delete_branch_on_merge',
-  fixHint: 'Settings → General → Pull Requests → "Automatically delete head branches".',
-});
-
 export const allowMergeCommitCheck = expectedBoolCheck({
   id: 'repo.allow-merge-commit',
   description: 'Allow merge commits matches policy.',
@@ -222,7 +215,6 @@ export const repoChecks: Check[] = [
   hasTopicsCheck,
   hasLicenseApiCheck,
   defaultBranchIsMainCheck,
-  deleteBranchOnMergeCheck,
   allowMergeCommitCheck,
   allowSquashMergeCheck,
   allowRebaseMergeCheck,

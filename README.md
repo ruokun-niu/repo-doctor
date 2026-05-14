@@ -14,6 +14,9 @@ on:
 
 permissions:
   contents: read
+  administration: read         # for repo.secret-scanning-*, repo.dependabot-security-updates-enabled
+  security-events: read        # for workflows.has-codeql
+  vulnerability-alerts: read   # for repo.vulnerability-alerts-enabled
 
 jobs:
   audit:
@@ -25,6 +28,10 @@ jobs:
 ```
 
 The action prints a grouped report to the job log and writes a Markdown summary visible on the workflow run page.
+
+If you only care about file/branch-level checks, `contents: read` alone is
+enough — security checks without the right permission will `skip` rather than
+fail. See [Permissions](#permissions) for the full mapping.
 
 ## Inputs
 
@@ -152,15 +159,49 @@ See `src/checks/` for the full list. Categories:
 
 All API calls are read-only. The action never requests write scopes.
 
-Recommended job permissions:
+The default `GITHUB_TOKEN` from `${{ github.token }}` is scoped to the running
+workflow's `permissions:` block. Different checks need different scopes; the
+table below summarizes what to add to read the data they need. Missing a
+permission is never fatal — the affected check will `skip` with a hint.
+
+### Recommended workflow `permissions:`
 
 ```yaml
 permissions:
-  contents: read
-  # add `administration: read` for deeper repo-settings introspection (branch protection, security features, etc.)
+  contents: read              # required for files.* / workflows.* / deps.* (reads repo contents)
+  metadata: read              # implicit; needed for repo.has-license, repo.has-description, etc.
+  administration: read        # repo.secret-scanning-*, repo.dependabot-security-updates-enabled
+  security-events: read       # workflows.has-codeql (reads code scanning config)
+  vulnerability-alerts: read  # repo.vulnerability-alerts-enabled
 ```
 
-Org-level checks require a separate token with `admin:org` (read).
+If you don't need the security-related checks, `contents: read` alone is fine
+and the rest will simply `skip`.
+
+### Per-check permission map
+
+| Check(s) | Required permission / scope |
+|---|---|
+| `files.*`, `workflows.*`, `deps.*` | `contents: read` |
+| `repo.has-description`, `repo.has-topics`, `repo.has-license`, `repo.default-branch-is-main`, `repo.allow-*` | none beyond default (uses repo metadata) |
+| `repo.vulnerability-alerts-enabled` | `vulnerability-alerts: read` |
+| `repo.secret-scanning-enabled`, `repo.secret-scanning-push-protection-enabled`, `repo.dependabot-security-updates-enabled` | `administration: read` (the `security_and_analysis` block is only returned to admins, or on public repos with GHAS) |
+| `branch.*` | `contents: read` is sufficient for repo + org rulesets; reading **classic** branch protection details may additionally need `administration: read` on some repos |
+| `org.*` (`org.enabled: true`) | A **separate token** with `admin:org` (read), passed as the `org-token:` input |
+
+### Cross-repo and org-wide audits
+
+The default `GITHUB_TOKEN` is scoped to *the repo running the workflow*. For
+`target: org` or `target: list`, you need a token that can read every audited
+repo. Recommended options:
+
+- **Fine-grained PAT** with `Repository contents: Read` (and any of the
+  read-only repository permissions above you want) on the target repos.
+- **GitHub App installation token** with the same permissions, installed on
+  the target repos.
+
+Pass that token via `github-token:` (and `org-token:` for `org.*` checks, which
+also need `admin:org` read).
 
 ## Development
 

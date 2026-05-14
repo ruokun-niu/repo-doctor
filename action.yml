@@ -16,10 +16,10 @@ inputs:
     required: false
     default: 'error'
   github-token:
-    description: 'Token used for repo-level API calls. Defaults to the GITHUB_TOKEN environment variable; set it in the workflow env or pass this input explicitly.'
+    description: 'Token used for repo-level API calls. Defaults to the GITHUB_TOKEN environment variable; set it in the workflow env or pass this input explicitly. For full coverage of security checks, the workflow `permissions:` block (or the PAT/app token) should grant: contents:read, administration:read, security-events:read, vulnerability-alerts:read.'
     required: false
   org-token:
-    description: 'Optional token with admin:org read for org-level checks.'
+    description: 'Optional token with admin:org read for org-level checks (org.*).'
     required: false
   format:
     description: 'Report format(s), comma-separated: text | json | markdown | sarif. Default: text,markdown.'

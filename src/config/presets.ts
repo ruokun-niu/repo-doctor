@@ -9,7 +9,6 @@ export const ALL_CHECK_DEFAULTS: Record<string, { severity: Severity; config?: R
   'repo.has-topics': { severity: 'warn', config: { min: 1 } },
   'repo.has-license': { severity: 'error' },
   'repo.default-branch-is-main': { severity: 'warn', config: { expected: 'main' } },
-  'repo.delete-branch-on-merge': { severity: 'warn', config: { expected: true } },
   'repo.allow-merge-commit': { severity: 'off', config: { expected: true } },
   'repo.allow-squash-merge': { severity: 'off', config: { expected: true } },
   'repo.allow-rebase-merge': { severity: 'off', config: { expected: true } },
@@ -64,7 +63,6 @@ const MINIMAL_ENABLED = new Set([
 const STANDARD_ENABLED = new Set([
   // repo
   'repo.has-license',
-  'repo.delete-branch-on-merge',
   'repo.vulnerability-alerts-enabled',
   'repo.secret-scanning-enabled',
   'repo.secret-scanning-push-protection-enabled',
