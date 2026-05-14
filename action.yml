@@ -1,0 +1,45 @@
+name: 'repo-doctor'
+description: 'Audit a GitHub repository (and optionally its org) against health & governance checks. Read-only.'
+author: 'repo-doctor contributors'
+branding:
+  icon: 'activity'
+  color: 'green'
+inputs:
+  config:
+    description: 'Path to repo-doctor config file (yaml). Defaults to .github/repo-doctor.yml'
+    required: false
+  preset:
+    description: 'Preset to apply: minimal | standard | strict | off. Overridden by config file if present.'
+    required: false
+  fail-on:
+    description: 'Severity that should cause a non-zero exit: error | warn | never. Default: error.'
+    required: false
+    default: 'error'
+  github-token:
+    description: 'Token used for repo-level API calls. Defaults to ${{ github.token }}.'
+    required: false
+    default: ${{ github.token }}
+  org-token:
+    description: 'Optional token with admin:org read for org-level checks.'
+    required: false
+  format:
+    description: 'Report format(s), comma-separated: text | json | markdown | sarif. Default: text,markdown.'
+    required: false
+    default: 'text,markdown'
+  output:
+    description: 'Optional path to write the report. Markdown is also written to $GITHUB_STEP_SUMMARY when available.'
+    required: false
+outputs:
+  passed:
+    description: 'Number of checks that passed.'
+  failed:
+    description: 'Number of checks that failed.'
+  warnings:
+    description: 'Number of failing checks at warn severity.'
+  errors:
+    description: 'Number of failing checks at error severity.'
+  report-path:
+    description: 'Path to the written report, if any.'
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
