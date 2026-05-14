@@ -24,21 +24,22 @@ function fileExistsCheck(opts: {
     docsUrl: opts.docsUrl,
     defaultSeverity: 'warn',
     async run(ctx) {
+      const ref = ctx.github.ref;
       for (const p of opts.paths) {
         if (await ctx.github.fileExists(p)) {
-          return { status: 'pass', message: `Found ${p}` };
+          return { status: 'pass', message: `Found in repository: ${ref.owner}/${ref.repo} (${p}).` };
         }
       }
 
       if (opts.inheritable && ctx.config.inherit_from_org !== false) {
-        const owner = ctx.github.ref.owner;
+        const owner = ref.owner;
         const defaultsRepo = await ctx.github.findOrgDefaultsRepo(owner);
         if (defaultsRepo) {
           for (const p of opts.paths) {
             if (await ctx.github.fileExistsInRepo(owner, defaultsRepo, p)) {
               return {
                 status: 'pass',
-                message: `Inherited from ${owner}/${defaultsRepo} (${p}).`,
+                message: `Found in organization defaults: ${owner}/${defaultsRepo} (${p}).`,
               };
             }
           }
@@ -135,34 +136,41 @@ export const issueTemplatesCheck: Check = {
   docsUrl: 'https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/about-issue-and-pull-request-templates',
   defaultSeverity: 'warn',
   async run(ctx) {
+    const ref = ctx.github.ref;
     // Either a directory of templates or a single legacy template file.
     const dir = await ctx.github.listDir('.github/ISSUE_TEMPLATE');
     if (dir && dir.some((e) => e.type === 'file' && /\.(md|yml|yaml)$/i.test(e.name))) {
-      return { status: 'pass', message: `Found ${dir.length} entries in .github/ISSUE_TEMPLATE/` };
+      return {
+        status: 'pass',
+        message: `Found in repository: ${ref.owner}/${ref.repo} (.github/ISSUE_TEMPLATE/, ${dir.length} entries).`,
+      };
     }
     const legacy = ['.github/ISSUE_TEMPLATE.md', 'ISSUE_TEMPLATE.md', 'docs/ISSUE_TEMPLATE.md'];
     for (const p of legacy) {
       if (await ctx.github.fileExists(p)) {
-        return { status: 'pass', message: `Found ${p}` };
+        return {
+          status: 'pass',
+          message: `Found in repository: ${ref.owner}/${ref.repo} (${p}).`,
+        };
       }
     }
 
     if (ctx.config.inherit_from_org !== false) {
-      const owner = ctx.github.ref.owner;
+      const owner = ref.owner;
       const defaultsRepo = await ctx.github.findOrgDefaultsRepo(owner);
       if (defaultsRepo) {
         const orgDir = await ctx.github.listDirInRepo(owner, defaultsRepo, '.github/ISSUE_TEMPLATE');
         if (orgDir && orgDir.some((e) => e.type === 'file' && /\.(md|yml|yaml)$/i.test(e.name))) {
           return {
             status: 'pass',
-            message: `Inherited from ${owner}/${defaultsRepo} (.github/ISSUE_TEMPLATE/).`,
+            message: `Found in organization defaults: ${owner}/${defaultsRepo} (.github/ISSUE_TEMPLATE/, ${orgDir.length} entries).`,
           };
         }
         for (const p of legacy) {
           if (await ctx.github.fileExistsInRepo(owner, defaultsRepo, p)) {
             return {
               status: 'pass',
-              message: `Inherited from ${owner}/${defaultsRepo} (${p}).`,
+              message: `Found in organization defaults: ${owner}/${defaultsRepo} (${p}).`,
             };
           }
         }

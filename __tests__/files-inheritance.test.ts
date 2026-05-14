@@ -53,7 +53,7 @@ describe('files checks: org-level inheritance', () => {
     state.files.add('acme/widget:CODE_OF_CONDUCT.md');
     const r = await codeOfConductCheck.run(makeCtx(state));
     expect(r.status).toBe('pass');
-    expect(r.message).toMatch(/Found CODE_OF_CONDUCT\.md/);
+    expect(r.message).toMatch(/Found in repository: acme\/widget \(CODE_OF_CONDUCT\.md\)/);
   });
 
   test('code-of-conduct is inherited from acme/.github when missing in repo', async () => {
@@ -62,7 +62,7 @@ describe('files checks: org-level inheritance', () => {
     state.files.add('acme/.github:CODE_OF_CONDUCT.md');
     const r = await codeOfConductCheck.run(makeCtx(state));
     expect(r.status).toBe('pass');
-    expect(r.message).toMatch(/Inherited from acme\/\.github/);
+    expect(r.message).toMatch(/Found in organization defaults: acme\/\.github/);
   });
 
   test('code-of-conduct fails when not in repo and no defaults repo exists', async () => {
@@ -92,7 +92,7 @@ describe('files checks: org-level inheritance', () => {
     state.files.add('acme/.github:SECURITY.md');
     const r = await securityCheck.run(makeCtx(state));
     expect(r.status).toBe('pass');
-    expect(r.message).toMatch(/Inherited from acme\/\.github/);
+    expect(r.message).toMatch(/Found in organization defaults: acme\/\.github/);
   });
 
   test('issue templates: inherits a directory of templates from org defaults', async () => {
@@ -103,7 +103,7 @@ describe('files checks: org-level inheritance', () => {
     ]);
     const r = await issueTemplatesCheck.run(makeCtx(state));
     expect(r.status).toBe('pass');
-    expect(r.message).toMatch(/Inherited from acme\/\.github/);
+    expect(r.message).toMatch(/Found in organization defaults: acme\/\.github/);
   });
 
   test('issue templates: fails when neither repo nor org defaults has any', async () => {
