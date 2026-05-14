@@ -14,7 +14,6 @@ on:
 
 permissions:
   contents: read
-  metadata: read
 
 jobs:
   audit:
@@ -106,8 +105,7 @@ Recommended job permissions:
 ```yaml
 permissions:
   contents: read
-  metadata: read
-  # add `administration: read` for deeper repo-settings introspection (security features, etc.)
+  # add `administration: read` for deeper repo-settings introspection (branch protection, security features, etc.)
 ```
 
 Org-level checks require a separate token with `admin:org` (read).

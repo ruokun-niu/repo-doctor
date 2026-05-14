@@ -16,9 +16,8 @@ inputs:
     required: false
     default: 'error'
   github-token:
-    description: 'Token used for repo-level API calls. Defaults to ${{ github.token }}.'
+    description: 'Token used for repo-level API calls. Defaults to the GITHUB_TOKEN env var (set workflow `env: { GITHUB_TOKEN: ${{ github.token }} }` or pass explicitly).'
     required: false
-    default: ${{ github.token }}
   org-token:
     description: 'Optional token with admin:org read for org-level checks.'
     required: false

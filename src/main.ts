@@ -24,7 +24,12 @@ async function run(): Promise<void> {
     if (!['error', 'warn', 'never'].includes(failOn)) {
       throw new Error(`Invalid fail-on value: ${failOn}`);
     }
-    const repoToken = core.getInput('github-token', { required: true });
+    const repoToken = core.getInput('github-token') || process.env.GITHUB_TOKEN;
+    if (!repoToken) {
+      throw new Error(
+        'No token available. Set the `github-token` input or pass GITHUB_TOKEN via `env:` on the step.',
+      );
+    }
     const orgToken = core.getInput('org-token') || undefined;
     const formatInput = core.getInput('format') || 'text,markdown';
     const formats = new Set(
