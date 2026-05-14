@@ -63,10 +63,7 @@ const MINIMAL_ENABLED = new Set([
 
 const STANDARD_ENABLED = new Set([
   // repo
-  'repo.has-description',
-  'repo.has-topics',
   'repo.has-license',
-  'repo.default-branch-is-main',
   'repo.delete-branch-on-merge',
   'repo.vulnerability-alerts-enabled',
   'repo.secret-scanning-enabled',

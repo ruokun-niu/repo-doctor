@@ -40,5 +40,5 @@ outputs:
   report-path:
     description: 'Path to the written report, if any.'
 runs:
-  using: 'node20'
+  using: 'node24'
   main: 'dist/index.js'
