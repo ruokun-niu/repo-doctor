@@ -28,6 +28,27 @@ inputs:
   output:
     description: 'Optional path to write the report. Markdown is also written to $GITHUB_STEP_SUMMARY when available.'
     required: false
+  target:
+    description: 'What to audit: "repo" (default, the current repo), "org" (every repo in the org), or "list" (explicit `repos` list).'
+    required: false
+    default: 'repo'
+  org:
+    description: 'Org name when target=org. Defaults to the current repo owner.'
+    required: false
+  repos:
+    description: 'Explicit list of repos to audit (whitespace- or comma-separated, each "owner/name"). If set, target defaults to "list".'
+    required: false
+  include-archived:
+    description: 'When target=org, also audit archived repos. Default: false.'
+    required: false
+    default: 'false'
+  repo-filter:
+    description: 'When target=org, optional regex of repo names to include (e.g. "^lib-"). Default: all repos.'
+    required: false
+  max-repos:
+    description: 'When target=org or target=list, cap the number of repos audited (safety valve). Default: 200.'
+    required: false
+    default: '200'
 outputs:
   passed:
     description: 'Number of checks that passed.'

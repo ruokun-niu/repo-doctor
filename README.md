@@ -37,6 +37,56 @@ The action prints a grouped report to the job log and writes a Markdown summary 
 | `org-token` | _none_ | Optional PAT/app token with `admin:org` read for org-level checks. |
 | `format` | `text,markdown` | Comma-separated: `text`, `markdown`, `json`. |
 | `output` | _none_ | Optional path to write the report file. |
+| `target` | `repo` | `repo` (audit current repo), `org` (every repo in the org), or `list` (explicit `repos` list). Defaults to `list` when `repos` is set. |
+| `org` | _repo owner_ | Org name when `target=org`. Also used as the report label for `target=list`. |
+| `repos` | _none_ | Explicit list of `owner/name` repos to audit (whitespace- or comma-separated). When set, `target` defaults to `list`. |
+| `include-archived` | `false` | When `target=org`, also audit archived repos. |
+| `repo-filter` | _none_ | When `target=org`, regex of repo names to include (e.g. `^lib-`). |
+| `max-repos` | `200` | When `target=org` or `target=list`, safety cap on how many repos to audit. |
+
+### Audit an explicit list of repos
+
+```yaml
+- uses: <you>/repo-doctor@v0.2.0
+  env:
+    GITHUB_TOKEN: ${{ secrets.AUDIT_TOKEN }}   # needs read access to each listed repo
+  with:
+    repos: |
+      my-org/repo-a
+      my-org/repo-b
+      another-org/repo-c
+    fail-on: never
+```
+
+You can also pass them comma-separated on one line: `repos: my-org/repo-a, my-org/repo-b`.
+
+### Org-wide audit example
+
+```yaml
+name: repo-doctor (org)
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 9 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: <you>/repo-doctor@v0.2.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.ORG_AUDIT_TOKEN }}   # PAT with repo:read on org repos
+        with:
+          target: org
+          org: my-org
+          fail-on: never
+          repo-filter: '^(?!archived-).+'
+```
+
+The org report includes a single per-repo summary table at the top with totals across every audited repo, then a collapsed details block per failing repo. Org-level checks (`org.*`) still run once when `org.enabled: true`.
 
 ## Outputs
 
