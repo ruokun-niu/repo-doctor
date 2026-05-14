@@ -1,5 +1,9 @@
 import { resolveConfig } from '../src/config/loader';
 import { applyPreset } from '../src/config/presets';
+import { loadConfig } from '../src/config/loader';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 
 describe('config resolution', () => {
   test('default preset is standard', () => {
@@ -40,5 +44,44 @@ describe('config resolution', () => {
     for (const id of Object.keys(defs)) {
       expect(defs[id].severity).toBe('off');
     }
+  });
+});
+
+describe('config file loading', () => {
+  let tmpDir: string;
+
+  beforeEach(() => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'repo-doctor-cfg-'));
+  });
+
+  afterEach(() => {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  test('loads YAML config from default location', () => {
+    fs.mkdirSync(path.join(tmpDir, '.github'));
+    fs.writeFileSync(
+      path.join(tmpDir, '.github', 'repo-doctor.yml'),
+      'version: 1\npreset: strict\n',
+    );
+    const { config, sourcePath } = loadConfig({ cwd: tmpDir });
+    expect(sourcePath).toBe('.github/repo-doctor.yml');
+    expect(config.preset).toBe('strict');
+  });
+
+  test('loads YAML config from explicit path', () => {
+    const p = path.join(tmpDir, 'custom.yaml');
+    fs.writeFileSync(p, 'preset: minimal\n');
+    const { config, sourcePath } = loadConfig({ cwd: tmpDir, explicitPath: 'custom.yaml' });
+    expect(sourcePath).toBe('custom.yaml');
+    expect(config.preset).toBe('minimal');
+  });
+
+  test('rejects unsupported file extensions', () => {
+    const p = path.join(tmpDir, 'config.toml');
+    fs.writeFileSync(p, 'preset = "minimal"\n');
+    expect(() => loadConfig({ cwd: tmpDir, explicitPath: 'config.toml' })).toThrow(
+      /Unsupported config file extension/,
+    );
   });
 });
